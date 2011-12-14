@@ -4,7 +4,6 @@ import sys
 import re
 import subprocess
 
-
 def make_col_map(header, sep="\t"):
     """
     Map column names in the header to the appropriate
@@ -24,19 +23,24 @@ def replace_columns(cmd, col_map):
         cmd = re.sub(r'\$%s\b' % col_name, "$" + col_map[col_name], cmd)
     return cmd
 
-
 def run_awk(new_cmd, fh, header=None, bufsize=8192):
     """
     Run awk using the updated command.
     """
-    proc = subprocess.Popen(new_cmd, shell=True, 
-                            stdin=subprocess.PIPE,
-                            bufsize=bufsize)
-    buf = header
-    while buf:
-        proc.stdin.write(buf)
-        buf = fh.read(bufsize)
-        proc.stdin.flush()
+    if fh is sys.stdin:
+        proc = subprocess.Popen(new_cmd, shell=True, stdin=subprocess.PIPE,
+                bufsize=bufsize)
+        buf = header
+        while buf:
+            proc.stdin.write(buf)
+            buf = fh.read(bufsize)
+            proc.stdin.flush()
+
+    else:
+        fh.seek(0)
+        proc = subprocess.Popen(new_cmd, shell=True, stdin=fh, bufsize=bufsize)
+        fh.flush()
+
 
 
 def main():
