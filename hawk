@@ -32,10 +32,8 @@ def run_awk(new_cmd, fh):
     http://stackoverflow.com/questions/375427/non-blocking-read-on-a-subprocess-pipe-in-python
     """
     proc = subprocess.Popen(new_cmd, shell=True,
-                            stdin=subprocess.PIPE)
-    for line in fh:
-        proc.stdin.write('%s' % line)
-
+                            stdin=fh)
+    fh.flush()
 
 def main():
     """
@@ -47,11 +45,11 @@ def main():
 
     # TODO: parse awk options and pass on to program.
     fh = open(sys.argv[2]) if sys.stdin.isatty() else sys.stdin
-    
+
     # grab the header and map column names to numbers
     header = fh.readline()
     col_map = make_col_map(header)
-    
+
     # create a new command using the appropriate column numbers.
     new_cmd = "awk " + "\'" + replace_columns(cmd, col_map) + "\'"
     run_awk(new_cmd, fh)
