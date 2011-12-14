@@ -44,5 +44,4 @@ Open issues
 ===========
 1. Proper command line parsing.  We currently just read from ARGV, and are unable to detect -v and -F arguments.
 2. We should have a mode (-H) whereby the user tells us there is no header and we are just running vanilla awk.  Alternatively, this could be accomplished by just using awk itself.
-3. The current subprocess.Popen implementation only returns output once it has all been collected from the awk call.  Need to report line by line.  Perhaps use something like: http://stackoverflow.com/questions/375427/non-blocking-read-on-a-subprocess-pipe-in-python
-4. Speed.  How much does the pre-processing of the column names slow things down.  Should be minimal.  If not, we need to eventually implement this in C.
+3. Speed.  How much does the pre-processing of the column names slow things down.  Should be minimal.  If not, we need to eventually implement this in C.

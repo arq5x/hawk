@@ -3,6 +3,8 @@
 import sys
 import re
 import subprocess
+from itertools import chain
+from StringIO import StringIO
 
 def make_col_map(header, sep="\t"):
     """
@@ -27,12 +29,8 @@ def replace_columns(cmd, col_map):
 def run_awk(new_cmd, fh):
     """
     Run awk using the updated command.
-
-    TO DO: Return results from pro line by line.  How?
-    http://stackoverflow.com/questions/375427/non-blocking-read-on-a-subprocess-pipe-in-python
     """
-    proc = subprocess.Popen(new_cmd, shell=True,
-                            stdin=fh)
+    proc = subprocess.Popen(new_cmd, shell=True, stdin=fh)
     fh.flush()
 
 def main():
@@ -51,7 +49,7 @@ def main():
     col_map = make_col_map(header)
 
     # create a new command using the appropriate column numbers.
-    new_cmd = "awk " + "\'" + replace_columns(cmd, col_map) + "\'"
+    new_cmd = "awk '%s'" % replace_columns(cmd, col_map)
     run_awk(new_cmd, fh)
 
 if __name__ == "__main__":
