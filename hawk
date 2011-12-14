@@ -6,55 +6,60 @@ import subprocess
 
 def make_col_map(header, sep="\t"):
     """
-    Map column names in the header to the appropriate
-    columns numbers for use with awk proper.
-    """
+Map column names in the header to the appropriate
+columns numbers for use with awk proper.
+"""
     return dict((h, str(i + 1)) for i, h in
                 enumerate(header.rstrip("\r\n").split(sep)))
 
 
 def replace_columns(cmd, col_map):
     """
-    Update the awk command by replacing the column names
-    found in the header with column numbers.
-    """
+Update the awk command by replacing the column names
+found in the header with column numbers.
+"""
     for col_name in col_map:
         # use regexp on word boundary
         cmd = re.sub(r'\$%s\b' % col_name, "$" + col_map[col_name], cmd)
     return cmd
 
-
-def run_awk(new_cmd, fh):
+def run_awk(new_cmd, fh, header=None, bufsize=8192):
     """
-    Run awk using the updated command.
+Run awk using the updated command.
+"""
+    if fh is sys.stdin:
+        proc = subprocess.Popen(new_cmd, shell=True, stdin=subprocess.PIPE,
+                bufsize=bufsize)
+        buf = header
+        while buf:
+            proc.stdin.write(buf)
+            buf = fh.read(bufsize)
+            proc.stdin.flush()
 
-    TO DO: Return results from pro line by line.  How?
-    http://stackoverflow.com/questions/375427/non-blocking-read-on-a-subprocess-pipe-in-python
-    """
-    proc = subprocess.Popen(new_cmd, shell=True,
-                            stdin=subprocess.PIPE)
-    for line in fh:
-        proc.stdin.write('%s' % line)
+    else:
+        fh.seek(0)
+        proc = subprocess.Popen(new_cmd, shell=True, stdin=fh, bufsize=bufsize)
+        fh.flush()
+
 
 def main():
     """
-    TO DO: Proper CL parsing so that all awk features
-    (e.g., -F, -v) are supported.  Need positional arguments?
-    """
+TO DO: Proper CL parsing so that all awk features
+(e.g., -F, -v) are supported. Need positional arguments?
+"""
     # grab the request ~awk command from the CL
     cmd = sys.argv[1]
 
     # TODO: parse awk options and pass on to program.
     fh = open(sys.argv[2]) if sys.stdin.isatty() else sys.stdin
-    
+
     # grab the header and map column names to numbers
     header = fh.readline()
     col_map = make_col_map(header)
-    
+
     # create a new command using the appropriate column numbers.
-    new_cmd = "awk " + "\'" + replace_columns(cmd, col_map) + "\'"
-    run_awk(new_cmd, fh)
+    new_cmd = "awk '%s'" % replace_columns(cmd, col_map)
+    run_awk(new_cmd, fh, header)
 
 if __name__ == "__main__":
     main()
-
