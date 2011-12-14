@@ -20,10 +20,10 @@ def replace_columns(cmd, col_map):
     """
     for col_name in col_map:
         # buggy, use re.sub as below, but broken.
-        cmd = cmd.replace(col_name, str(col_map[col_name]))
+        #cmd = cmd.replace(col_name, str(col_map[col_name]))
         
         # use regexp on word boundary other wise
-        # cmd = re.sub(r"\b\$" + col_name + "\b", "$" + col_map[col_name], cmd)
+        #cmd = re.sub(r"\b\$" + col_name + "\b", "$" + col_map[col_name], cmd)
     return cmd
 
 
