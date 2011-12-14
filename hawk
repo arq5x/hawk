@@ -23,17 +23,21 @@ def replace_columns(cmd, col_map):
         cmd = re.sub(r'\$%s\b' % col_name, "$" + col_map[col_name], cmd)
     return cmd
 
-def run_awk(new_cmd, fh):
+def run_awk(new_cmd, fh, bufsize=8192):
     """
     Run awk using the updated command.
     """
     if fh is sys.stdin:
         proc = subprocess.Popen(new_cmd, shell=True, stdin=subprocess.PIPE,
-                bufsize=8192)
-        for line in fh:
-            proc.stdin.write(line)
+                bufsize=bufsize)
+        buf = fh.read(bufsize)
+        while buf:
+            proc.stdin.write(buf)
+            buf = fh.read(bufsize)
+            proc.stdin.flush()
+
     else:
-        proc = subprocess.Popen(new_cmd, shell=True, stdin=fh, bufsize=8192)
+        proc = subprocess.Popen(new_cmd, shell=True, stdin=fh, bufsize=bufsize)
         fh.flush()
 
 
