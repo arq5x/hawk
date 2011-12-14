@@ -32,10 +32,9 @@ def run_awk(new_cmd, fh):
     http://stackoverflow.com/questions/375427/non-blocking-read-on-a-subprocess-pipe-in-python
     """
     proc = subprocess.Popen(new_cmd, shell=True,
-                            stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+                            stdin=subprocess.PIPE)
     for line in fh:
         proc.stdin.write('%s' % line)
-    print proc.communicate()[0],
 
 
 def main():
