@@ -19,11 +19,8 @@ def replace_columns(cmd, col_map):
     found in the header with column numbers.
     """
     for col_name in col_map:
-        # buggy, use re.sub as below, but broken.
-        cmd = cmd.replace(col_name, str(col_map[col_name]))
-        
-        # use regexp on word boundary other wise
-        # cmd = re.sub(r"\b\$" + col_name + "\b", "$" + col_map[col_name], cmd)
+        # use regexp on word boundary
+        cmd = re.sub(r'\$%s\b' % col_name, "$" + col_map[col_name], cmd)
     return cmd
 
 
