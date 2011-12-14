@@ -12,7 +12,6 @@ def make_col_map(header, sep="\t"):
     return dict((h, str(i + 1)) for i, h in
                 enumerate(header.rstrip("\r\n").split(sep)))
 
-
 def replace_columns(cmd, col_map):
     """
     Update the awk command by replacing the column names
@@ -27,21 +26,13 @@ def run_awk(new_cmd, fh, header=None, bufsize=8192):
     """
     Run awk using the updated command.
     """
-    if fh is sys.stdin:
-        proc = subprocess.Popen(new_cmd, shell=True, stdin=subprocess.PIPE,
-                bufsize=bufsize)
-        buf = header
-        while buf:
-            proc.stdin.write(buf)
-            buf = fh.read(bufsize)
-            proc.stdin.flush()
-
-    else:
-        fh.seek(0)
-        proc = subprocess.Popen(new_cmd, shell=True, stdin=fh, bufsize=bufsize)
-        fh.flush()
-
-
+    proc = subprocess.Popen(new_cmd, shell=True, stdin=subprocess.PIPE,
+            bufsize=bufsize)
+    buf = header
+    while buf:
+        proc.stdin.write(buf)
+        buf = fh.read(bufsize)
+        proc.stdin.flush()
 
 def main():
     """
