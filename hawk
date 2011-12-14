@@ -36,7 +36,6 @@ def run_awk(new_cmd, fh):
     for line in fh:
         proc.stdin.write('%s' % line)
 
-
 def main():
     """
     TO DO: Proper CL parsing so that all awk features
