@@ -22,7 +22,7 @@ def replace_columns(cmd, col_map):
         cmd = re.sub(r'\$%s\b' % col_name, "$" + col_map[col_name], cmd)
     return cmd
 
-def run_awk(new_cmd, fh, header=None, bufsize=8192):
+def run_awk(new_cmd, fh, is_file):
     """
     Run awk using the updated command.
     """
@@ -43,15 +43,28 @@ def main():
     cmd = sys.argv[1]
 
     # TODO: parse awk options and pass on to program.
-    fh = open(sys.argv[2]) if sys.stdin.isatty() else sys.stdin
+    fh = None
+    is_file = False
+    if sys.stdin.isatty():
+        is_file = True
+        fh = open(sys.argv[2], 'r')
+    else:
+        fh = sys.stdin
 
     # grab the header and map column names to numbers
     header = fh.readline()
     col_map = make_col_map(header)
 
     # create a new command using the appropriate column numbers.
+<<<<<<< HEAD
     new_cmd = "awk '%s'" % replace_columns(cmd, col_map)
     run_awk(new_cmd, fh, header)
+=======
+    new_cmd = "awk " + "\'" + replace_columns(cmd, col_map) + "\'"
+    if is_file:
+        proc = subprocess.Popen(new_cmd, shell=True, stdin=fh)
+    
+>>>>>>> master
 
 if __name__ == "__main__":
     main()
