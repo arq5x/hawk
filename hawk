@@ -3,8 +3,6 @@
 import sys
 import re
 import subprocess
-from itertools import chain
-from StringIO import StringIO
 
 def make_col_map(header, sep="\t"):
     """
@@ -25,13 +23,19 @@ def replace_columns(cmd, col_map):
         cmd = re.sub(r'\$%s\b' % col_name, "$" + col_map[col_name], cmd)
     return cmd
 
-
 def run_awk(new_cmd, fh):
     """
     Run awk using the updated command.
     """
-    proc = subprocess.Popen(new_cmd, shell=True, stdin=fh)
-    fh.flush()
+    if fh is sys.stdin:
+        proc = subprocess.Popen(new_cmd, shell=True, stdin=subprocess.PIPE,
+                bufsize=8192)
+        for line in fh:
+            proc.stdin.write(line)
+    else:
+        proc = subprocess.Popen(new_cmd, shell=True, stdin=fh, bufsize=8192)
+        fh.flush()
+
 
 def main():
     """
